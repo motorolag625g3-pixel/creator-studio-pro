@@ -62,7 +62,7 @@ if video:
                     "outputs/logo_output.mp4",
                  opacity=0.2
                     # TEXT BRANDING FEATURE
-elif menu == "Text Branding":
+  if menu == "Text Branding":
 
     st.header("📝 Text Branding")
 
