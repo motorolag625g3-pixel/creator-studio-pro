@@ -28,22 +28,53 @@ menu = st.sidebar.selectbox(
 # ==============================
 # FULL SCREEN WATERMARK
 # ==============================
+    # ==============================
+# CUSTOM TEXT BRANDING
+# ==============================
 
-if menu == "Full Screen Watermark (Logo)":
+if menu == "Custom Text Branding":
 
-    st.header("🖼️ Full Screen Watermark")
+    st.header("📝 Custom Text Branding")
 
-    video = st.file_uploader(
+    # upload video
+    branding_video = st.file_uploader(
         "Upload Video",
         type=["mp4"]
     )
 
-    logo = st.file_uploader(
-        "Upload Logo",
-        type=["png"]
+    # custom user text
+    branding_text = st.text_input(
+        "Enter Your Branding Text"
     )
 
-    if video and logo:
+    if branding_video and branding_text:
+
+        # SAVE VIDEO
+        with open("temp/text_video.mp4", "wb") as f:
+            f.write(branding_video.read())
+
+        # BUTTON
+        if st.button("Apply Custom Branding"):
+
+            add_text_branding(
+                "temp/text_video.mp4",
+                branding_text,
+                "outputs/custom_text_branding.mp4"
+            )
+
+            st.success("Custom Text Branding Added!")
+
+            # SHOW OUTPUT
+            st.video("outputs/custom_text_branding.mp4")
+
+            # DOWNLOAD BUTTON
+            with open("outputs/custom_text_branding.mp4", "rb") as file:
+
+                st.download_button(
+                    "Download Video",
+                    file,
+                    file_name="custom_branding.mp4"
+                )
 
         # SAVE VIDEO
         with open("temp/input.mp4", "wb") as f:
