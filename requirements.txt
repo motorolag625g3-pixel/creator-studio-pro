@@ -7,3 +7,5 @@ pillow
 imageio
 imageio-ffmpeg
 decorator==4.4.2
+openai-whisper
+torch
