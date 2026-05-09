@@ -415,51 +415,5 @@ if menu == "Auto Captions":
                     file_name="caption_video.mp4"
                 )
 
-# =========================================
-# CHANGE AUDIO LANGUAGE
-# =========================================
 
-if menu == "Change Audio Language":
-
-    st.header("🌍 Change Video Audio Language")
-
-    language_video = st.file_uploader(
-        "Upload English Video",
-        type=["mp4"],
-        key="language_video"
-    )
-
-    selected_language = st.selectbox(
-        "Select Target Language",
-        [
-            "Hindi",
-            "Kannada",
-            "Tamil",
-            "Telugu"
-        ]
-    )
-
-    if language_video:
-
-        with open("temp/language_video.mp4", "wb") as f:
-            f.write(language_video.read())
-
-        if st.button("Convert Language"):
-
-            dub_video_language(
-                "temp/language_video.mp4",
-                selected_language,
-                "outputs/dubbed_video.mp4"
-            )
-
-            st.success("Language Changed Successfully!")
-
-            st.video("outputs/dubbed_video.mp4")
-
-            with open("outputs/dubbed_video.mp4", "rb") as file:
-
-                st.download_button(
-                    "Download Video",
-                    file,
-                    file_name="dubbed_video.mp4"
                 )
