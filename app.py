@@ -22,8 +22,8 @@ menu = st.sidebar.selectbox(
     [
         "Full Screen Watermark",
         "Custom Text Branding",
-        "Add Intro Video"
-        "Add Background Music"
+        "Add Intro Video",
+        "Replace Video Audio"
     ]
 )
 
@@ -37,21 +37,21 @@ if menu == "Full Screen Watermark":
 
     video = st.file_uploader(
         "Upload Video",
-        type=["mp4"]
+        type=["mp4"],
+        key="watermark_video"
     )
 
     logo = st.file_uploader(
         "Upload PNG Logo",
-        type=["png"]
+        type=["png"],
+        key="watermark_logo"
     )
 
     if video and logo:
 
-        # SAVE VIDEO
         with open("temp/input.mp4", "wb") as f:
             f.write(video.read())
 
-        # SAVE LOGO
         with open("temp/logo.png", "wb") as f:
             f.write(logo.read())
 
@@ -86,7 +86,8 @@ if menu == "Custom Text Branding":
 
     text_video = st.file_uploader(
         "Upload Video",
-        type=["mp4"]
+        type=["mp4"],
+        key="text_video"
     )
 
     branding_text = st.text_input(
@@ -128,21 +129,21 @@ if menu == "Add Intro Video":
 
     intro_video = st.file_uploader(
         "Upload Intro Clip",
-        type=["mp4"]
+        type=["mp4"],
+        key="intro_video"
     )
 
     main_video = st.file_uploader(
         "Upload Main Video",
-        type=["mp4"]
+        type=["mp4"],
+        key="main_video"
     )
 
     if intro_video and main_video:
 
-        # SAVE INTRO
         with open("temp/intro.mp4", "wb") as f:
             f.write(intro_video.read())
 
-        # SAVE MAIN VIDEO
         with open("temp/main_video.mp4", "wb") as f:
             f.write(main_video.read())
 
@@ -165,7 +166,8 @@ if menu == "Add Intro Video":
                     file,
                     file_name="final_intro_video.mp4"
                 )
-                # =========================================
+
+# =========================================
 # REPLACE VIDEO AUDIO
 # =========================================
 
@@ -173,29 +175,26 @@ if menu == "Replace Video Audio":
 
     st.header("🎧 Replace Video Audio")
 
-    # VIDEO UPLOAD
     replace_video = st.file_uploader(
         "Upload Video",
-        type=["mp4"]
+        type=["mp4"],
+        key="replace_video"
     )
 
-    # AUDIO UPLOAD
     replace_audio = st.file_uploader(
         "Upload New Audio",
-        type=["mp3", "wav"]
+        type=["mp3", "wav"],
+        key="replace_audio"
     )
 
     if replace_video and replace_audio:
 
-        # SAVE VIDEO
         with open("temp/replace_video.mp4", "wb") as f:
             f.write(replace_video.read())
 
-        # SAVE AUDIO
         with open("temp/new_audio.mp3", "wb") as f:
             f.write(replace_audio.read())
 
-        # BUTTON
         if st.button("Replace Audio"):
 
             replace_video_audio(
@@ -206,10 +205,8 @@ if menu == "Replace Video Audio":
 
             st.success("Audio Replaced Successfully!")
 
-            # SHOW VIDEO
             st.video("outputs/final_audio_replace.mp4")
 
-            # DOWNLOAD BUTTON
             with open("outputs/final_audio_replace.mp4", "rb") as file:
 
                 st.download_button(
