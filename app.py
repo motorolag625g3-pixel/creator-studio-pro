@@ -1,32 +1,70 @@
-from moviepy.editor import *
 
-# FULL SCREEN WATERMARK FUNCTION
-def add_logo_fullscreen(video_path, logo_path, output, opacity=0.2):
+import streamlit as st
 
-    # Load main video
-    video = VideoFileClip(video_path)
+from branding_tools import *
 
-    # Create full-screen watermark
-    logo = (
-        ImageClip(logo_path)
-        .set_duration(video.duration)
+# PAGE SETTINGS
+st.set_page_config(
+    page_title="Creator Studio Pro",
+    layout="wide"
+)
 
-        # Resize logo to full video size
-        .resize((video.w, video.h))
+# TITLE
+st.title("🎬 Creator Studio Pro")
 
-        # Center position
-        .set_position(("center", "center"))
+# SIDEBAR MENU
+menu = st.sidebar.selectbox(
+    "Choose Feature",
+    [
+        "Logo Watermark",
+        "Text Watermark"
+    ]
+)
 
-        # Watermark visibility (20%)
-        .set_opacity(opacity)
-    )
+# VIDEO UPLOAD
+video = st.file_uploader(
+    "Upload Video",
+    type=["mp4"]
+)
 
-    # Combine video + watermark
-    final = CompositeVideoClip([video, logo])
+# CHECK VIDEO
+if video:
 
-    # Export final video
-    final.write_videofile(
-        output,
-        codec="libx264",
-        audio_codec="aac"
-    )
+    # SAVE VIDEO
+    with open("temp/input.mp4", "wb") as f:
+        f.write(video.read())
+
+    st.success("Video Uploaded Successfully")
+
+    # LOGO WATERMARK
+    if menu == "Logo Watermark":
+
+        logo = st.file_uploader(
+            "Upload Logo",
+            type=["png"]
+        )
+
+        if logo:
+
+            # SAVE LOGO
+            with open("temp/logo.png", "wb") as f:
+                f.write(logo.read())
+
+            # BUTTON
+            if st.button("Add Logo Watermark"):
+                
+
+                
+                
+                add_logo_fullscreen(
+                    "temp/input.mp4",
+                    "temp/logo.png",
+                    "outputs/logo_output.mp4",
+                 opacity=0.2
+                    
+                )
+
+                st.success("Logo Added Successfully!")
+
+                # SHOW VIDEO
+                st.video("outputs/logo_output.mp4")
