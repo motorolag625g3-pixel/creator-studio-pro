@@ -162,3 +162,30 @@ def add_intro_video(intro_path, main_video_path, output):
         audio_codec="aac",
         fps=main_video.fps
     )
+# =====================================
+# REPLACE VIDEO AUDIO
+# =====================================
+
+def replace_video_audio(video_path, new_audio_path, output):
+
+    # LOAD VIDEO
+    video = VideoFileClip(video_path)
+
+    # REMOVE OLD AUDIO
+    video = video.without_audio()
+
+    # LOAD NEW AUDIO
+    new_audio = AudioFileClip(new_audio_path)
+
+    # MATCH AUDIO LENGTH TO VIDEO
+    new_audio = new_audio.set_duration(video.duration)
+
+    # ADD NEW AUDIO
+    final_video = video.set_audio(new_audio)
+
+    # EXPORT FINAL VIDEO
+    final_video.write_videofile(
+        output,
+        codec="libx264",
+        audio_codec="aac"
+    )
