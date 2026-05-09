@@ -23,6 +23,7 @@ menu = st.sidebar.selectbox(
         "Full Screen Watermark",
         "Custom Text Branding",
         "Add Intro Video"
+        "Add Background Music"
     ]
 )
 
@@ -163,4 +164,56 @@ if menu == "Add Intro Video":
                     "Download Video",
                     file,
                     file_name="final_intro_video.mp4"
+                )
+                # =========================================
+# REPLACE VIDEO AUDIO
+# =========================================
+
+if menu == "Replace Video Audio":
+
+    st.header("🎧 Replace Video Audio")
+
+    # VIDEO UPLOAD
+    replace_video = st.file_uploader(
+        "Upload Video",
+        type=["mp4"]
+    )
+
+    # AUDIO UPLOAD
+    replace_audio = st.file_uploader(
+        "Upload New Audio",
+        type=["mp3", "wav"]
+    )
+
+    if replace_video and replace_audio:
+
+        # SAVE VIDEO
+        with open("temp/replace_video.mp4", "wb") as f:
+            f.write(replace_video.read())
+
+        # SAVE AUDIO
+        with open("temp/new_audio.mp3", "wb") as f:
+            f.write(replace_audio.read())
+
+        # BUTTON
+        if st.button("Replace Audio"):
+
+            replace_video_audio(
+                "temp/replace_video.mp4",
+                "temp/new_audio.mp3",
+                "outputs/final_audio_replace.mp4"
+            )
+
+            st.success("Audio Replaced Successfully!")
+
+            # SHOW VIDEO
+            st.video("outputs/final_audio_replace.mp4")
+
+            # DOWNLOAD BUTTON
+            with open("outputs/final_audio_replace.mp4", "rb") as file:
+
+                st.download_button(
+                    "Download Video",
+                    file,
+                    file_name="audio_replaced_video.mp4"
                 )
