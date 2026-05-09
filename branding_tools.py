@@ -4,6 +4,9 @@ import numpy as np
 import whisper
 import textwrap
 
+from googletrans import Translator
+from gtts import gTTS
+
 # =====================================
 # FULL SCREEN LOGO WATERMARK
 # =====================================
@@ -27,7 +30,6 @@ def add_logo_fullscreen(video_path, logo_path, output, opacity=0.2):
         codec="libx264",
         audio_codec="aac"
     )
-
 
 # =====================================
 # CUSTOM TEXT BRANDING
@@ -109,7 +111,6 @@ def add_text_branding(video_path, text, output):
         audio_codec="aac"
     )
 
-
 # =====================================
 # ADD INTRO VIDEO
 # =====================================
@@ -134,7 +135,6 @@ def add_intro_video(intro_path, main_video_path, output):
         fps=main_video.fps
     )
 
-
 # =====================================
 # REPLACE VIDEO AUDIO
 # =====================================
@@ -157,7 +157,6 @@ def replace_video_audio(video_path, new_audio_path, output):
         audio_codec="aac"
     )
 
-
 # =====================================
 # TRIM VIDEO
 # =====================================
@@ -176,7 +175,6 @@ def trim_video(video_path, start_time, end_time, output):
         audio=False
     )
 
-
 # =====================================
 # ADJUST VIDEO VOLUME
 # =====================================
@@ -192,7 +190,6 @@ def adjust_video_volume(video_path, volume_level, output):
         codec="libx264",
         audio_codec="aac"
     )
-
 
 # =====================================
 # INSERT MID-ROLL ADVERTISEMENTS
@@ -259,21 +256,16 @@ def insert_advertisements(
 
 def add_auto_captions(video_path, output):
 
-    # LOAD WHISPER MODEL
     model = whisper.load_model("base")
 
-    # LOAD VIDEO
     video = VideoFileClip(video_path)
 
-    # EXTRACT AUDIO
     audio_path = "temp/audio.wav"
 
     video.audio.write_audiofile(audio_path)
 
-    # TRANSCRIBE AUDIO
     result = model.transcribe(audio_path)
 
-    # OPEN VIDEO USING OPENCV
     cap = cv2.VideoCapture(video_path)
 
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -304,7 +296,6 @@ def add_auto_captions(video_path, output):
 
         current_text = ""
 
-        # FIND CURRENT SUBTITLE
         for segment in result["segments"]:
 
             if segment["start"] <= current_time <= segment["end"]:
@@ -333,7 +324,6 @@ def add_auto_captions(video_path, output):
 
                 x = (width - text_size[0]) // 2
 
-                # BLACK BACKGROUND
                 cv2.rectangle(
                     frame,
                     (x - 10, y_position - 30),
@@ -342,7 +332,6 @@ def add_auto_captions(video_path, output):
                     -1
                 )
 
-                # WHITE TEXT
                 cv2.putText(
                     frame,
                     line,
@@ -363,13 +352,70 @@ def add_auto_captions(video_path, output):
     cap.release()
     out.release()
 
-    # ADD ORIGINAL AUDIO BACK
     final_clip = VideoFileClip(temp_output)
 
     final_clip = final_clip.set_audio(video.audio)
 
-    # EXPORT FINAL VIDEO
     final_clip.write_videofile(
+        output,
+        codec="libx264",
+        audio_codec="aac"
+    )
+
+# =====================================
+# MULTI LANGUAGE VIDEO DUBBING
+# =====================================
+
+def dub_video_language(
+    video_path,
+    language,
+    output
+):
+
+    language_codes = {
+        "Hindi": "hi",
+        "Kannada": "kn",
+        "Tamil": "ta",
+        "Telugu": "te"
+    }
+
+    model = whisper.load_model("base")
+
+    video = VideoFileClip(video_path)
+
+    audio_path = "temp/original_audio.wav"
+
+    video.audio.write_audiofile(audio_path)
+
+    result = model.transcribe(audio_path)
+
+    original_text = result["text"]
+
+    translator = Translator()
+
+    translated = translator.translate(
+        original_text,
+        dest=language_codes[language]
+    )
+
+    translated_text = translated.text
+
+    tts = gTTS(
+        text=translated_text,
+        lang=language_codes[language]
+    )
+
+    translated_audio = "temp/translated_audio.mp3"
+
+    tts.save(translated_audio)
+
+    new_audio = AudioFileClip(translated_audio)
+
+    new_audio = new_audio.set_duration(video.duration)
+
+    final_video = video.set_audio(new_audio)
+
+    final_video.write_videofile(
         output,
         codec="libx264",
         audio_codec="aac"
