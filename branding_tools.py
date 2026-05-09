@@ -1,47 +1,32 @@
-
 from moviepy.editor import *
 
-# LOGO WATERMARK
-def add_logo(video_path, logo_path, output):
+# FULL SCREEN WATERMARK FUNCTION
+def add_logo_fullscreen(video_path, logo_path, output, opacity=0.2):
 
-    # Load video
+    # Load main video
     video = VideoFileClip(video_path)
 
-    # Load logo image
+    # Create full-screen watermark
     logo = (
         ImageClip(logo_path)
         .set_duration(video.duration)
-        .resize(height=80)
-        .set_pos(("right", "bottom"))
-        .set_opacity(0.5)
+
+        # Resize logo to full video size
+        .resize((video.w, video.h))
+
+        # Center position
+        .set_position(("center", "center"))
+
+        # Watermark visibility (20%)
+        .set_opacity(opacity)
     )
 
-    # Combine video + logo
+    # Combine video + watermark
     final = CompositeVideoClip([video, logo])
 
-    # Save output
-    final.write_videofile(output)
-
-
-# TEXT WATERMARK
-def add_text(video_path, text, output):
-
-    # Load video
-    video = VideoFileClip(video_path)
-
-    # Create text
-    txt = (
-        TextClip(
-            text,
-            fontsize=40,
-            color='white'
-        )
-        .set_duration(video.duration)
-        .set_position("center")
+    # Export final video
+    final.write_videofile(
+        output,
+        codec="libx264",
+        audio_codec="aac"
     )
-
-    # Combine video + text
-    final = CompositeVideoClip([video, txt])
-
-    # Save output
-    final.write_videofile(output)
