@@ -189,3 +189,21 @@ def replace_video_audio(video_path, new_audio_path, output):
         codec="libx264",
         audio_codec="aac"
     )
+    # =====================================
+# TRIM VIDEO
+# =====================================
+
+def trim_video(video_path, start_time, end_time, output):
+
+    # LOAD VIDEO
+    video = VideoFileClip(video_path)
+
+    # CUT VIDEO
+    trimmed = video.subclip(start_time, end_time)
+
+    # EXPORT VIDEO
+    trimmed.write_videofile(
+        output,
+        codec="libx264",
+        audio_codec="aac"
+    )
