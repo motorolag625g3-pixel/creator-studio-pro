@@ -21,19 +21,64 @@ def add_logo_fullscreen(video_path, logo_path, output, opacity=0.2):
         .set_opacity(opacity)
     )
     # TEXT BRANDING FUNCTION
+from moviepy.editor import *
+
+# FULL SCREEN LOGO WATERMARK
+def add_logo_fullscreen(video_path, logo_path, output, opacity=0.2):
+
+    video = VideoFileClip(video_path)
+
+    logo = (
+        ImageClip(logo_path)
+        .set_duration(video.duration)
+        .resize((video.w, video.h))
+        .set_position(("center", "center"))
+        .set_opacity(opacity)
+    )
+
+    final = CompositeVideoClip([video, logo])
+
+    final.write_videofile(
+        output,
+        codec="libx264",
+        audio_codec="aac"
+    )
+
+
+# CUSTOM TEXT BRANDING
 def add_text_branding(video_path, text, output):
 
     video = VideoFileClip(video_path)
 
+    # CREATE TEXT
     txt = (
         TextClip(
             text,
-            fontsize=60,
+            fontsize=80,
             color='white',
-            font='Arial-Bold'
+            stroke_color='black',
+            stroke_width=2,
+            method='caption',
+            size=(video.w, None)
         )
         .set_duration(video.duration)
 
+        # CENTER OF VIDEO
+        .set_position(("center", "center"))
+
+        # 20% visibility
+        .set_opacity(0.2)
+    )
+
+    # COMBINE VIDEO + TEXT
+    final = CompositeVideoClip([video, txt])
+
+    # EXPORT VIDEO
+    final.write_videofile(
+        output,
+        codec="libx264",
+        audio_codec="aac"
+    )
         # center text
         .set_position(("center", "center"))
 
