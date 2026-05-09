@@ -16,8 +16,8 @@ st.title("🎬 Creator Studio Pro")
 menu = st.sidebar.selectbox(
     "Choose Feature",
     [
-        "Logo Watermark",
-        "Text Watermark"
+        "Full Screen Watermark (Logo)",
+        "Text Branding"
     ]
 )
 
@@ -37,7 +37,7 @@ if video:
     st.success("Video Uploaded Successfully")
 
     # LOGO WATERMARK
-    if menu == "Logo Watermark":
+    if menu == "Full Screen Watermark (Logo)":
 
         logo = st.file_uploader(
             "Upload Logo",
@@ -61,6 +61,40 @@ if video:
                     "temp/logo.png",
                     "outputs/logo_output.mp4",
                  opacity=0.2
+                    # TEXT BRANDING FEATURE
+elif menu == "Text Branding":
+
+    st.header("📝 Text Branding")
+
+    # upload video
+    text_video = st.file_uploader(
+        "Upload Video for Text Branding",
+        type=["mp4"]
+    )
+
+    # text input
+    branding_text = st.text_input(
+        "Enter Branding Text"
+    )
+
+    if text_video and branding_text:
+
+        # save video
+        with open("temp/text_video.mp4", "wb") as f:
+            f.write(text_video.read())
+
+        # process button
+        if st.button("Apply Text Branding"):
+
+            add_text_branding(
+                "temp/text_video.mp4",
+                branding_text,
+                "outputs/text_branding.mp4"
+            )
+
+            st.success("Text Branding Added!")
+
+            st.video("outputs/text_branding.mp4")
                     
                 )
 
