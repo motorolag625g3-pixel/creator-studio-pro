@@ -21,7 +21,7 @@ menu = st.sidebar.selectbox(
     "Choose Feature",
     [
         "Full Screen Watermark",
-        "Custom Text Branding"
+        "Custom Text Branding",
         "Add Intro Video"
     ]
 )
@@ -34,13 +34,11 @@ if menu == "Full Screen Watermark":
 
     st.header("🖼️ Full Screen Watermark")
 
-    # VIDEO UPLOAD
     video = st.file_uploader(
         "Upload Video",
         type=["mp4"]
     )
 
-    # LOGO UPLOAD
     logo = st.file_uploader(
         "Upload PNG Logo",
         type=["png"]
@@ -56,7 +54,6 @@ if menu == "Full Screen Watermark":
         with open("temp/logo.png", "wb") as f:
             f.write(logo.read())
 
-        # BUTTON
         if st.button("Apply Watermark"):
 
             add_logo_fullscreen(
@@ -68,10 +65,8 @@ if menu == "Full Screen Watermark":
 
             st.success("Watermark Added Successfully!")
 
-            # SHOW VIDEO
             st.video("outputs/logo_output.mp4")
 
-            # DOWNLOAD BUTTON
             with open("outputs/logo_output.mp4", "rb") as file:
 
                 st.download_button(
@@ -88,24 +83,20 @@ if menu == "Custom Text Branding":
 
     st.header("📝 Custom Text Branding")
 
-    # VIDEO UPLOAD
     text_video = st.file_uploader(
         "Upload Video",
         type=["mp4"]
     )
 
-    # USER TEXT INPUT
     branding_text = st.text_input(
         "Enter Your Branding Text"
     )
 
     if text_video and branding_text:
 
-        # SAVE VIDEO
         with open("temp/text_video.mp4", "wb") as f:
             f.write(text_video.read())
 
-        # BUTTON
         if st.button("Apply Text Branding"):
 
             add_text_branding(
@@ -116,10 +107,8 @@ if menu == "Custom Text Branding":
 
             st.success("Text Branding Added Successfully!")
 
-            # SHOW VIDEO
             st.video("outputs/text_branding.mp4")
 
-            # DOWNLOAD BUTTON
             with open("outputs/text_branding.mp4", "rb") as file:
 
                 st.download_button(
@@ -127,7 +116,8 @@ if menu == "Custom Text Branding":
                     file,
                     file_name="text_branding_video.mp4"
                 )
-                # =========================================
+
+# =========================================
 # ADD INTRO VIDEO
 # =========================================
 
@@ -135,13 +125,11 @@ if menu == "Add Intro Video":
 
     st.header("🎬 Add Intro Video")
 
-    # INTRO VIDEO
     intro_video = st.file_uploader(
         "Upload Intro Clip",
         type=["mp4"]
     )
 
-    # MAIN VIDEO
     main_video = st.file_uploader(
         "Upload Main Video",
         type=["mp4"]
@@ -157,7 +145,6 @@ if menu == "Add Intro Video":
         with open("temp/main_video.mp4", "wb") as f:
             f.write(main_video.read())
 
-        # BUTTON
         if st.button("Generate Final Video"):
 
             add_intro_video(
@@ -168,10 +155,8 @@ if menu == "Add Intro Video":
 
             st.success("Intro Added Successfully!")
 
-            # SHOW OUTPUT
             st.video("outputs/final_intro_video.mp4")
 
-            # DOWNLOAD BUTTON
             with open("outputs/final_intro_video.mp4", "rb") as file:
 
                 st.download_button(
