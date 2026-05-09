@@ -1,22 +1,64 @@
+from moviepy.editor import *
 import cv2
 import numpy as np
 
 # =====================================
-# CUSTOM TEXT BRANDING USING OPENCV
+# FULL SCREEN LOGO WATERMARK
+# =====================================
+
+def add_logo_fullscreen(video_path, logo_path, output, opacity=0.2):
+
+    # LOAD MAIN VIDEO
+    video = VideoFileClip(video_path)
+
+    # LOAD LOGO
+    logo = (
+        ImageClip(logo_path)
+        .set_duration(video.duration)
+
+        # FULL SCREEN SIZE
+        .resize((video.w, video.h))
+
+        # CENTER POSITION
+        .set_position(("center", "center"))
+
+        # TRANSPARENCY
+        .set_opacity(opacity)
+    )
+
+    # COMBINE VIDEO + LOGO
+    final = CompositeVideoClip([video, logo])
+
+    # EXPORT VIDEO
+    final.write_videofile(
+        output,
+        codec="libx264",
+        audio_codec="aac"
+    )
+
+
+# =====================================
+# CUSTOM TEXT BRANDING
 # =====================================
 
 def add_text_branding(video_path, text, output):
 
+    # TEMP FILE
+    temp_output = "temp/temp_branding.mp4"
+
+    # LOAD VIDEO
     cap = cv2.VideoCapture(video_path)
 
+    # VIDEO SETTINGS
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = cap.get(cv2.CAP_PROP_FPS)
 
-    fourcc = cv2.VideoWriter_fourcc(*'avc1')
+    # VIDEO WRITER
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 
     out = cv2.VideoWriter(
-        output,
+        temp_output,
         fourcc,
         fps,
         (width, height)
@@ -29,14 +71,15 @@ def add_text_branding(video_path, text, output):
         if not ret:
             break
 
+        # COPY FRAME
         overlay = frame.copy()
 
-        # TEXT SETTINGS
+        # FONT SETTINGS
         font = cv2.FONT_HERSHEY_SIMPLEX
         font_scale = 3
         thickness = 5
 
-        # GET TEXT SIZE
+        # TEXT SIZE
         text_size = cv2.getTextSize(
             text,
             font,
@@ -44,7 +87,7 @@ def add_text_branding(video_path, text, output):
             thickness
         )[0]
 
-        # CENTER TEXT
+        # CENTER POSITION
         x = (width - text_size[0]) // 2
         y = height // 2
 
@@ -60,9 +103,10 @@ def add_text_branding(video_path, text, output):
             cv2.LINE_AA
         )
 
-        # TRANSPARENCY
+        # TEXT TRANSPARENCY
         alpha = 0.2
 
+        # BLEND TEXT + VIDEO
         frame = cv2.addWeighted(
             overlay,
             alpha,
@@ -71,7 +115,18 @@ def add_text_branding(video_path, text, output):
             0
         )
 
+        # WRITE FRAME
         out.write(frame)
 
+    # RELEASE VIDEO
     cap.release()
     out.release()
+
+    # RE-ENCODE FOR BROWSER PLAYBACK
+    final_clip = VideoFileClip(temp_output)
+
+    final_clip.write_videofile(
+        output,
+        codec="libx264",
+        audio_codec="aac"
+    )
