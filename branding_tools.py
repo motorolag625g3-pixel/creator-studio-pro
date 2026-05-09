@@ -1,6 +1,8 @@
 from moviepy.editor import *
 import cv2
 import numpy as np
+import whisper
+import textwrap
 
 # =====================================
 # FULL SCREEN LOGO WATERMARK
@@ -8,10 +10,8 @@ import numpy as np
 
 def add_logo_fullscreen(video_path, logo_path, output, opacity=0.2):
 
-    # LOAD MAIN VIDEO
     video = VideoFileClip(video_path)
 
-    # LOAD LOGO
     logo = (
         ImageClip(logo_path)
         .set_duration(video.duration)
@@ -20,10 +20,8 @@ def add_logo_fullscreen(video_path, logo_path, output, opacity=0.2):
         .set_opacity(opacity)
     )
 
-    # COMBINE VIDEO + LOGO
     final = CompositeVideoClip([video, logo])
 
-    # EXPORT VIDEO
     final.write_videofile(
         output,
         codec="libx264",
@@ -39,15 +37,12 @@ def add_text_branding(video_path, text, output):
 
     temp_output = "temp/temp_branding.mp4"
 
-    # LOAD VIDEO
     cap = cv2.VideoCapture(video_path)
 
-    # VIDEO SETTINGS
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = cap.get(cv2.CAP_PROP_FPS)
 
-    # VIDEO WRITER
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 
     out = cv2.VideoWriter(
@@ -64,15 +59,12 @@ def add_text_branding(video_path, text, output):
         if not ret:
             break
 
-        # COPY FRAME
         overlay = frame.copy()
 
-        # FONT SETTINGS
         font = cv2.FONT_HERSHEY_SIMPLEX
         font_scale = 3
         thickness = 5
 
-        # TEXT SIZE
         text_size = cv2.getTextSize(
             text,
             font,
@@ -80,11 +72,9 @@ def add_text_branding(video_path, text, output):
             thickness
         )[0]
 
-        # CENTER POSITION
         x = (width - text_size[0]) // 2
         y = height // 2
 
-        # DRAW TEXT
         cv2.putText(
             overlay,
             text,
@@ -96,10 +86,8 @@ def add_text_branding(video_path, text, output):
             cv2.LINE_AA
         )
 
-        # TEXT TRANSPARENCY
         alpha = 0.4
 
-        # BLEND TEXT + VIDEO
         frame = cv2.addWeighted(
             overlay,
             alpha,
@@ -108,14 +96,11 @@ def add_text_branding(video_path, text, output):
             0
         )
 
-        # WRITE FRAME
         out.write(frame)
 
-    # RELEASE VIDEO
     cap.release()
     out.release()
 
-    # RE-ENCODE FOR BROWSER PLAYBACK
     final_clip = VideoFileClip(temp_output)
 
     final_clip.write_videofile(
@@ -131,23 +116,17 @@ def add_text_branding(video_path, text, output):
 
 def add_intro_video(intro_path, main_video_path, output):
 
-    # LOAD VIDEOS
     intro = VideoFileClip(intro_path)
     main_video = VideoFileClip(main_video_path)
 
-    # MATCH RESOLUTION
     intro = intro.resize(main_video.size)
-
-    # MATCH FPS
     intro = intro.set_fps(main_video.fps)
 
-    # COMBINE VIDEOS
     final_video = concatenate_videoclips(
         [intro, main_video],
         method="compose"
     )
 
-    # EXPORT FINAL VIDEO
     final_video.write_videofile(
         output,
         codec="libx264",
@@ -162,22 +141,16 @@ def add_intro_video(intro_path, main_video_path, output):
 
 def replace_video_audio(video_path, new_audio_path, output):
 
-    # LOAD VIDEO
     video = VideoFileClip(video_path)
 
-    # REMOVE OLD AUDIO
     video = video.without_audio()
 
-    # LOAD NEW AUDIO
     new_audio = AudioFileClip(new_audio_path)
 
-    # MATCH AUDIO LENGTH
     new_audio = new_audio.set_duration(video.duration)
 
-    # ADD NEW AUDIO
     final_video = video.set_audio(new_audio)
 
-    # EXPORT VIDEO
     final_video.write_videofile(
         output,
         codec="libx264",
@@ -191,22 +164,37 @@ def replace_video_audio(video_path, new_audio_path, output):
 
 def trim_video(video_path, start_time, end_time, output):
 
-    # LOAD VIDEO
     video = VideoFileClip(video_path)
 
-    # TRIM VIDEO
     trimmed = video.subclip(start_time, end_time)
 
-    # REMOVE AUDIO TO AVOID STREAMLIT ERRORS
     trimmed = trimmed.without_audio()
 
-    # EXPORT VIDEO
     trimmed.write_videofile(
         output,
         codec="libx264",
         audio=False
     )
-    # =====================================
+
+
+# =====================================
+# ADJUST VIDEO VOLUME
+# =====================================
+
+def adjust_video_volume(video_path, volume_level, output):
+
+    video = VideoFileClip(video_path)
+
+    final_video = video.volumex(volume_level)
+
+    final_video.write_videofile(
+        output,
+        codec="libx264",
+        audio_codec="aac"
+    )
+
+
+# =====================================
 # INSERT MID-ROLL ADVERTISEMENTS
 # =====================================
 
@@ -217,16 +205,12 @@ def insert_advertisements(
     output
 ):
 
-    # LOAD MAIN VIDEO
     main_video = VideoFileClip(main_video_path)
 
-    # LOAD AD VIDEO
     ad_video = VideoFileClip(ad_video_path)
 
-    # MAIN VIDEO DURATION
     duration = main_video.duration
 
-    # SPLIT POINTS
     split_points = []
 
     for i in range(1, ad_count + 1):
@@ -235,41 +219,151 @@ def insert_advertisements(
 
         split_points.append(point)
 
-    # CREATE VIDEO PARTS
     clips = []
 
     previous = 0
 
     for point in split_points:
 
-        # MAIN VIDEO PART
         part = main_video.subclip(previous, point)
 
         clips.append(part)
 
-        # ADD AD VIDEO
         ad_resized = ad_video.resize(main_video.size)
+
         ad_resized = ad_resized.set_fps(main_video.fps)
 
         clips.append(ad_resized)
 
         previous = point
 
-    # LAST PART OF VIDEO
     last_part = main_video.subclip(previous)
 
     clips.append(last_part)
 
-    # COMBINE ALL CLIPS
     final_video = concatenate_videoclips(
         clips,
         method="compose"
     )
 
-    # EXPORT VIDEO
     final_video.write_videofile(
         output,
         codec="libx264",
         audio_codec="aac",
         fps=main_video.fps
+    )
+
+
+# =====================================
+# AUTO CAPTIONS
+# =====================================
+
+def add_auto_captions(video_path, output):
+
+    # LOAD WHISPER MODEL
+    model = whisper.load_model("base")
+
+    # TRANSCRIBE VIDEO
+    result = model.transcribe(video_path)
+
+    cap = cv2.VideoCapture(video_path)
+
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fps = cap.get(cv2.CAP_PROP_FPS)
+
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+
+    temp_output = "temp/caption_temp.mp4"
+
+    out = cv2.VideoWriter(
+        temp_output,
+        fourcc,
+        fps,
+        (width, height)
+    )
+
+    frame_number = 0
+
+    while True:
+
+        ret, frame = cap.read()
+
+        if not ret:
+            break
+
+        current_time = frame_number / fps
+
+        current_text = ""
+
+        for segment in result["segments"]:
+
+            if segment["start"] <= current_time <= segment["end"]:
+
+                current_text = segment["text"]
+
+                break
+
+        if current_text:
+
+            wrapped_text = textwrap.wrap(
+                current_text,
+                width=30
+            )
+
+            y_position = height - 100
+
+            for line in wrapped_text:
+
+                text_size = cv2.getTextSize(
+                    line,
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    1,
+                    2
+                )[0]
+
+                x = (width - text_size[0]) // 2
+
+                # BLACK BACKGROUND
+                cv2.rectangle(
+                    frame,
+                    (x - 10, y_position - 30),
+                    (x + text_size[0] + 10, y_position + 10),
+                    (0, 0, 0),
+                    -1
+                )
+
+                # WHITE TEXT
+                cv2.putText(
+                    frame,
+                    line,
+                    (x, y_position),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    1,
+                    (255, 255, 255),
+                    2,
+                    cv2.LINE_AA
+                )
+
+                y_position += 40
+
+        out.write(frame)
+
+        frame_number += 1
+
+    cap.release()
+    out.release()
+
+    final_clip = VideoFileClip(temp_output)
+
+    original_video = VideoFileClip(video_path)
+
+    final_clip = final_clip.set_audio(
+        original_video.audio
+    )
+
+    final_clip.write_videofile(
+        output,
+        codec="libx264",
+        audio_codec="aac"
     )
