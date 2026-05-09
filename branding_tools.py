@@ -206,3 +206,70 @@ def trim_video(video_path, start_time, end_time, output):
         codec="libx264",
         audio=False
     )
+    # =====================================
+# INSERT MID-ROLL ADVERTISEMENTS
+# =====================================
+
+def insert_advertisements(
+    main_video_path,
+    ad_video_path,
+    ad_count,
+    output
+):
+
+    # LOAD MAIN VIDEO
+    main_video = VideoFileClip(main_video_path)
+
+    # LOAD AD VIDEO
+    ad_video = VideoFileClip(ad_video_path)
+
+    # MAIN VIDEO DURATION
+    duration = main_video.duration
+
+    # SPLIT POINTS
+    split_points = []
+
+    for i in range(1, ad_count + 1):
+
+        point = (duration / (ad_count + 1)) * i
+
+        split_points.append(point)
+
+    # CREATE VIDEO PARTS
+    clips = []
+
+    previous = 0
+
+    for point in split_points:
+
+        # MAIN VIDEO PART
+        part = main_video.subclip(previous, point)
+
+        clips.append(part)
+
+        # ADD AD VIDEO
+        ad_resized = ad_video.resize(main_video.size)
+        ad_resized = ad_resized.set_fps(main_video.fps)
+
+        clips.append(ad_resized)
+
+        previous = point
+
+    # LAST PART OF VIDEO
+    last_part = main_video.subclip(previous)
+
+    clips.append(last_part)
+
+    # COMBINE ALL CLIPS
+    final_video = concatenate_videoclips(
+        clips,
+        method="compose"
+    )
+
+    # EXPORT VIDEO
+    final_video.write_videofile(
+        output,
+        codec="libx264",
+        audio_codec="aac",
+        fps=main_video.fps
+    )
