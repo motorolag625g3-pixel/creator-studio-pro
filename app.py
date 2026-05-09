@@ -25,6 +25,77 @@ menu = st.sidebar.selectbox(
         "Add Intro Video",
         "Replace Video Audio",
         "Trim Video"
+        "Adjust Video Volume",
+    # =====================================
+# INSERT MID-ROLL ADVERTISEMENTS
+# =====================================
+
+def insert_advertisements(
+    main_video_path,
+    ad_video_path,
+    ad_count,
+    output
+):
+
+    # LOAD MAIN VIDEO
+    main_video = VideoFileClip(main_video_path)
+
+    # LOAD AD VIDEO
+    ad_video = VideoFileClip(ad_video_path)
+
+    # MAIN VIDEO DURATION
+    duration = main_video.duration
+
+    # SPLIT POINTS
+    split_points = []
+
+    for i in range(1, ad_count + 1):
+
+        point = (duration / (ad_count + 1)) * i
+
+        split_points.append(point)
+
+    # CREATE VIDEO PARTS
+    clips = []
+
+    previous = 0
+
+    for point in split_points:
+
+        # MAIN VIDEO PART
+        part = main_video.subclip(previous, point)
+
+        clips.append(part)
+
+        # ADD AD VIDEO
+        ad_resized = ad_video.resize(main_video.size)
+        ad_resized = ad_resized.set_fps(main_video.fps)
+
+        clips.append(ad_resized)
+
+        previous = point
+
+    # LAST PART OF VIDEO
+    last_part = main_video.subclip(previous)
+
+    clips.append(last_part)
+
+    # COMBINE ALL CLIPS
+    final_video = concatenate_videoclips(
+        clips,
+        method="compose"
+    )
+
+    # EXPORT VIDEO
+    final_video.write_videofile(
+        output,
+        codec="libx264",
+        audio_codec="aac",
+        fps=main_video.fps
+    )
+]
+        
+        
     ]
 )
 
@@ -266,4 +337,67 @@ if menu == "Trim Video":
                     "Download Video",
                     file,
                     file_name="trimmed_video.mp4"
+                )
+                # =========================================
+# INSERT ADVERTISEMENTS
+# =========================================
+
+if menu == "Insert Advertisements":
+
+    st.header("📢 Insert Advertisements")
+
+    # MAIN VIDEO
+    main_video = st.file_uploader(
+        "Upload Main Video",
+        type=["mp4"],
+        key="main_ad_video"
+    )
+
+    # AD VIDEO
+    ad_video = st.file_uploader(
+        "Upload Advertisement Video",
+        type=["mp4"],
+        key="advertisement_video"
+    )
+
+    # AD COUNT
+    ad_count = st.number_input(
+        "Number of Advertisements",
+        min_value=1,
+        max_value=10,
+        value=1
+    )
+
+    if main_video and ad_video:
+
+        # SAVE MAIN VIDEO
+        with open("temp/main_ad_video.mp4", "wb") as f:
+            f.write(main_video.read())
+
+        # SAVE AD VIDEO
+        with open("temp/ad_video.mp4", "wb") as f:
+            f.write(ad_video.read())
+
+        # BUTTON
+        if st.button("Insert Advertisements"):
+
+            insert_advertisements(
+                "temp/main_ad_video.mp4",
+                "temp/ad_video.mp4",
+                ad_count,
+                "outputs/final_ad_video.mp4"
+            )
+
+            st.success("Advertisements Added Successfully!")
+
+            # SHOW VIDEO
+            st.video("outputs/final_ad_video.mp4")
+
+            # DOWNLOAD BUTTON
+            with open("outputs/final_ad_video.mp4", "rb") as file:
+
+                st.download_button(
+                    "Download Video",
+                    file,
+                    file_name="advertisement_video.mp4"
                 )
