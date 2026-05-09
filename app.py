@@ -26,7 +26,8 @@ menu = st.sidebar.selectbox(
         "Replace Video Audio",
         "Trim Video",
         "Adjust Video Volume",
-        "Insert Advertisements"
+        "Insert Advertisements",
+        "Auto Captions"
     ]
 )
 
@@ -52,11 +53,9 @@ if menu == "Full Screen Watermark":
 
     if video and logo:
 
-        # SAVE VIDEO
         with open("temp/input.mp4", "wb") as f:
             f.write(video.read())
 
-        # SAVE LOGO
         with open("temp/logo.png", "wb") as f:
             f.write(logo.read())
 
@@ -329,21 +328,18 @@ if menu == "Insert Advertisements":
 
     st.header("📢 Insert Advertisements")
 
-    # MAIN VIDEO
     main_video = st.file_uploader(
         "Upload Main Video",
         type=["mp4"],
         key="main_ad_video"
     )
 
-    # AD VIDEO
     ad_video = st.file_uploader(
         "Upload Advertisement Video",
         type=["mp4"],
         key="advertisement_video"
     )
 
-    # NUMBER OF ADS
     ad_count = st.number_input(
         "Number of Advertisements",
         min_value=1,
@@ -378,4 +374,42 @@ if menu == "Insert Advertisements":
                     "Download Video",
                     file,
                     file_name="advertisement_video.mp4"
+                )
+
+# =========================================
+# AUTO CAPTIONS
+# =========================================
+
+if menu == "Auto Captions":
+
+    st.header("📝 Automatic Video Captions")
+
+    caption_video = st.file_uploader(
+        "Upload English Video",
+        type=["mp4"],
+        key="caption_video"
+    )
+
+    if caption_video:
+
+        with open("temp/caption_video.mp4", "wb") as f:
+            f.write(caption_video.read())
+
+        if st.button("Generate Captions"):
+
+            add_auto_captions(
+                "temp/caption_video.mp4",
+                "outputs/caption_video.mp4"
+            )
+
+            st.success("Captions Added Successfully!")
+
+            st.video("outputs/caption_video.mp4")
+
+            with open("outputs/caption_video.mp4", "rb") as file:
+
+                st.download_button(
+                    "Download Video",
+                    file,
+                    file_name="caption_video.mp4"
                 )
