@@ -1,7 +1,11 @@
-
 import streamlit as st
+import os
 
 from branding_tools import *
+
+# CREATE FOLDERS
+os.makedirs("temp", exist_ok=True)
+os.makedirs("outputs", exist_ok=True)
 
 # PAGE SETTINGS
 st.set_page_config(
@@ -21,69 +25,70 @@ menu = st.sidebar.selectbox(
     ]
 )
 
-# VIDEO UPLOAD
-video = st.file_uploader(
-    "Upload Video",
-    type=["mp4"]
-)
+# ==============================
+# FULL SCREEN WATERMARK
+# ==============================
 
-# CHECK VIDEO
-if video:
+if menu == "Full Screen Watermark (Logo)":
 
-    # SAVE VIDEO
-    with open("temp/input.mp4", "wb") as f:
-        f.write(video.read())
+    st.header("🖼️ Full Screen Watermark")
 
-    st.success("Video Uploaded Successfully")
+    video = st.file_uploader(
+        "Upload Video",
+        type=["mp4"]
+    )
 
-    # LOGO WATERMARK
-    if menu == "Full Screen Watermark (Logo)":
+    logo = st.file_uploader(
+        "Upload Logo",
+        type=["png"]
+    )
 
-        logo = st.file_uploader(
-            "Upload Logo",
-            type=["png"]
-        )
+    if video and logo:
 
-        if logo:
+        # SAVE VIDEO
+        with open("temp/input.mp4", "wb") as f:
+            f.write(video.read())
 
-            # SAVE LOGO
-            with open("temp/logo.png", "wb") as f:
-                f.write(logo.read())
+        # SAVE LOGO
+        with open("temp/logo.png", "wb") as f:
+            f.write(logo.read())
 
-            # BUTTON
-            if st.button("Add Logo Watermark"):
-                
+        if st.button("Apply Watermark"):
 
-                
-                
-                add_logo_fullscreen(
-                    "temp/input.mp4",
-                    "temp/logo.png",
-                    "outputs/logo_output.mp4",
-                 opacity=0.2
-                    # TEXT BRANDING FEATURE
-  if menu == "Text Branding":
+            add_logo_fullscreen(
+                "temp/input.mp4",
+                "temp/logo.png",
+                "outputs/logo_output.mp4",
+                opacity=0.2
+            )
+
+            st.success("Watermark Added Successfully!")
+
+            st.video("outputs/logo_output.mp4")
+
+# ==============================
+# TEXT BRANDING
+# ==============================
+
+if menu == "Text Branding":
 
     st.header("📝 Text Branding")
 
-    # upload video
     text_video = st.file_uploader(
         "Upload Video for Text Branding",
         type=["mp4"]
     )
 
-    # text input
     branding_text = st.text_input(
         "Enter Branding Text"
     )
 
     if text_video and branding_text:
 
-        # save video
+        # SAVE VIDEO
         with open("temp/text_video.mp4", "wb") as f:
             f.write(text_video.read())
 
-        # process button
         if st.button("Apply Text Branding"):
 
             add_text_branding(
@@ -95,10 +100,3 @@ if video:
             st.success("Text Branding Added!")
 
             st.video("outputs/text_branding.mp4")
-                    
-                )
-
-                st.success("Logo Added Successfully!")
-
-                # SHOW VIDEO
-                st.video("outputs/logo_output.mp4")
