@@ -15,14 +15,8 @@ def add_logo_fullscreen(video_path, logo_path, output, opacity=0.2):
     logo = (
         ImageClip(logo_path)
         .set_duration(video.duration)
-
-        # FULL SCREEN SIZE
         .resize((video.w, video.h))
-
-        # CENTER POSITION
         .set_position(("center", "center"))
-
-        # TRANSPARENCY
         .set_opacity(opacity)
     )
 
@@ -43,7 +37,6 @@ def add_logo_fullscreen(video_path, logo_path, output, opacity=0.2):
 
 def add_text_branding(video_path, text, output):
 
-    # TEMP FILE
     temp_output = "temp/temp_branding.mp4"
 
     # LOAD VIDEO
@@ -104,7 +97,7 @@ def add_text_branding(video_path, text, output):
         )
 
         # TEXT TRANSPARENCY
-        alpha = 0.5
+        alpha = 0.4
 
         # BLEND TEXT + VIDEO
         frame = cv2.addWeighted(
@@ -130,9 +123,8 @@ def add_text_branding(video_path, text, output):
         codec="libx264",
         audio_codec="aac"
     )
-    # =====================================
-# ADD INTRO VIDEO
-# =====================================
+
+
 # =====================================
 # ADD INTRO VIDEO
 # =====================================
@@ -162,6 +154,8 @@ def add_intro_video(intro_path, main_video_path, output):
         audio_codec="aac",
         fps=main_video.fps
     )
+
+
 # =====================================
 # REPLACE VIDEO AUDIO
 # =====================================
@@ -177,19 +171,21 @@ def replace_video_audio(video_path, new_audio_path, output):
     # LOAD NEW AUDIO
     new_audio = AudioFileClip(new_audio_path)
 
-    # MATCH AUDIO LENGTH TO VIDEO
+    # MATCH AUDIO LENGTH
     new_audio = new_audio.set_duration(video.duration)
 
     # ADD NEW AUDIO
     final_video = video.set_audio(new_audio)
 
-    # EXPORT FINAL VIDEO
+    # EXPORT VIDEO
     final_video.write_videofile(
         output,
         codec="libx264",
         audio_codec="aac"
     )
-    # =====================================
+
+
+# =====================================
 # TRIM VIDEO
 # =====================================
 
@@ -198,12 +194,15 @@ def trim_video(video_path, start_time, end_time, output):
     # LOAD VIDEO
     video = VideoFileClip(video_path)
 
-    # CUT VIDEO
+    # TRIM VIDEO
     trimmed = video.subclip(start_time, end_time)
+
+    # REMOVE AUDIO TO AVOID STREAMLIT ERRORS
+    trimmed = trimmed.without_audio()
 
     # EXPORT VIDEO
     trimmed.write_videofile(
         output,
         codec="libx264",
-        audio_codec="aac"
+        audio=False
     )
