@@ -23,7 +23,7 @@ menu = st.sidebar.selectbox(
         "Full Screen Watermark",
         "Custom Text Branding",
         "Add Intro Video",
-        "Replace Video Audio"
+        "Replace Video Audio",
         "Trim Video"
     ]
 )
@@ -215,7 +215,8 @@ if menu == "Replace Video Audio":
                     file,
                     file_name="audio_replaced_video.mp4"
                 )
-                # =========================================
+
+# =========================================
 # TRIM VIDEO
 # =========================================
 
@@ -231,25 +232,21 @@ if menu == "Trim Video":
 
     if trim_video_file:
 
-        # SAVE VIDEO
         with open("temp/trim_video.mp4", "wb") as f:
             f.write(trim_video_file.read())
 
-        # START TIME
         start_time = st.number_input(
             "Start Time (seconds)",
             min_value=0,
             value=0
         )
 
-        # END TIME
         end_time = st.number_input(
             "End Time (seconds)",
             min_value=1,
             value=10
         )
 
-        # BUTTON
         if st.button("Trim Video"):
 
             trim_video(
@@ -261,10 +258,8 @@ if menu == "Trim Video":
 
             st.success("Video Trimmed Successfully!")
 
-            # SHOW VIDEO
             st.video("outputs/trimmed_video.mp4")
 
-            # DOWNLOAD BUTTON
             with open("outputs/trimmed_video.mp4", "rb") as file:
 
                 st.download_button(
@@ -272,4 +267,3 @@ if menu == "Trim Video":
                     file,
                     file_name="trimmed_video.mp4"
                 )
-                
