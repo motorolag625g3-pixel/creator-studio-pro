@@ -20,61 +20,32 @@ st.title("🎬 Creator Studio Pro")
 menu = st.sidebar.selectbox(
     "Choose Feature",
     [
-        "Full Screen Watermark (Logo)",
-        "Text Branding"
+        "Full Screen Watermark",
+        "Custom Text Branding"
     ]
 )
 
-# ==============================
+# =========================================
 # FULL SCREEN WATERMARK
-# ==============================
-    # ==============================
-# CUSTOM TEXT BRANDING
-# ==============================
+# =========================================
 
-if menu == "Custom Text Branding":
+if menu == "Full Screen Watermark":
 
-    st.header("📝 Custom Text Branding")
+    st.header("🖼️ Full Screen Watermark")
 
-    # upload video
-    branding_video = st.file_uploader(
+    # VIDEO UPLOAD
+    video = st.file_uploader(
         "Upload Video",
         type=["mp4"]
     )
 
-    # custom user text
-    branding_text = st.text_input(
-        "Enter Your Branding Text"
+    # LOGO UPLOAD
+    logo = st.file_uploader(
+        "Upload PNG Logo",
+        type=["png"]
     )
 
-    if branding_video and branding_text:
-
-        # SAVE VIDEO
-        with open("temp/text_video.mp4", "wb") as f:
-            f.write(branding_video.read())
-
-        # BUTTON
-        if st.button("Apply Custom Branding"):
-
-            add_text_branding(
-                "temp/text_video.mp4",
-                branding_text,
-                "outputs/custom_text_branding.mp4"
-            )
-
-            st.success("Custom Text Branding Added!")
-
-            # SHOW OUTPUT
-            st.video("outputs/custom_text_branding.mp4")
-
-            # DOWNLOAD BUTTON
-            with open("outputs/custom_text_branding.mp4", "rb") as file:
-
-                st.download_button(
-                    "Download Video",
-                    file,
-                    file_name="custom_branding.mp4"
-                )
+    if video and logo:
 
         # SAVE VIDEO
         with open("temp/input.mp4", "wb") as f:
@@ -84,6 +55,7 @@ if menu == "Custom Text Branding":
         with open("temp/logo.png", "wb") as f:
             f.write(logo.read())
 
+        # BUTTON
         if st.button("Apply Watermark"):
 
             add_logo_fullscreen(
@@ -95,23 +67,35 @@ if menu == "Custom Text Branding":
 
             st.success("Watermark Added Successfully!")
 
+            # SHOW VIDEO
             st.video("outputs/logo_output.mp4")
 
-# ==============================
-# TEXT BRANDING
-# ==============================
+            # DOWNLOAD BUTTON
+            with open("outputs/logo_output.mp4", "rb") as file:
 
-if menu == "Text Branding":
+                st.download_button(
+                    "Download Video",
+                    file,
+                    file_name="watermarked_video.mp4"
+                )
 
-    st.header("📝 Text Branding")
+# =========================================
+# CUSTOM TEXT BRANDING
+# =========================================
 
+if menu == "Custom Text Branding":
+
+    st.header("📝 Custom Text Branding")
+
+    # VIDEO UPLOAD
     text_video = st.file_uploader(
-        "Upload Video for Text Branding",
+        "Upload Video",
         type=["mp4"]
     )
 
+    # USER TEXT INPUT
     branding_text = st.text_input(
-        "Enter Branding Text"
+        "Enter Your Branding Text"
     )
 
     if text_video and branding_text:
@@ -120,6 +104,7 @@ if menu == "Text Branding":
         with open("temp/text_video.mp4", "wb") as f:
             f.write(text_video.read())
 
+        # BUTTON
         if st.button("Apply Text Branding"):
 
             add_text_branding(
@@ -128,6 +113,16 @@ if menu == "Text Branding":
                 "outputs/text_branding.mp4"
             )
 
-            st.success("Text Branding Added!")
+            st.success("Text Branding Added Successfully!")
 
+            # SHOW VIDEO
             st.video("outputs/text_branding.mp4")
+
+            # DOWNLOAD BUTTON
+            with open("outputs/text_branding.mp4", "rb") as file:
+
+                st.download_button(
+                    "Download Video",
+                    file,
+                    file_name="text_branding_video.mp4"
+                )
