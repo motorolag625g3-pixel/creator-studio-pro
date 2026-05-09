@@ -22,6 +22,7 @@ menu = st.sidebar.selectbox(
     [
         "Full Screen Watermark",
         "Custom Text Branding"
+        "Add Intro Video"
     ]
 )
 
@@ -125,4 +126,56 @@ if menu == "Custom Text Branding":
                     "Download Video",
                     file,
                     file_name="text_branding_video.mp4"
+                )
+                # =========================================
+# ADD INTRO VIDEO
+# =========================================
+
+if menu == "Add Intro Video":
+
+    st.header("🎬 Add Intro Video")
+
+    # INTRO VIDEO
+    intro_video = st.file_uploader(
+        "Upload Intro Clip",
+        type=["mp4"]
+    )
+
+    # MAIN VIDEO
+    main_video = st.file_uploader(
+        "Upload Main Video",
+        type=["mp4"]
+    )
+
+    if intro_video and main_video:
+
+        # SAVE INTRO
+        with open("temp/intro.mp4", "wb") as f:
+            f.write(intro_video.read())
+
+        # SAVE MAIN VIDEO
+        with open("temp/main_video.mp4", "wb") as f:
+            f.write(main_video.read())
+
+        # BUTTON
+        if st.button("Generate Final Video"):
+
+            add_intro_video(
+                "temp/intro.mp4",
+                "temp/main_video.mp4",
+                "outputs/final_intro_video.mp4"
+            )
+
+            st.success("Intro Added Successfully!")
+
+            # SHOW OUTPUT
+            st.video("outputs/final_intro_video.mp4")
+
+            # DOWNLOAD BUTTON
+            with open("outputs/final_intro_video.mp4", "rb") as file:
+
+                st.download_button(
+                    "Download Video",
+                    file,
+                    file_name="final_intro_video.mp4"
                 )
