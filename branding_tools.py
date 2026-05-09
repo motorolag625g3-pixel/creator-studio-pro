@@ -253,7 +253,6 @@ def insert_advertisements(
         fps=main_video.fps
     )
 
-
 # =====================================
 # AUTO CAPTIONS
 # =====================================
@@ -263,9 +262,18 @@ def add_auto_captions(video_path, output):
     # LOAD WHISPER MODEL
     model = whisper.load_model("base")
 
-    # TRANSCRIBE VIDEO
-    result = model.transcribe(video_path)
+    # LOAD VIDEO
+    video = VideoFileClip(video_path)
 
+    # EXTRACT AUDIO
+    audio_path = "temp/audio.wav"
+
+    video.audio.write_audiofile(audio_path)
+
+    # TRANSCRIBE AUDIO
+    result = model.transcribe(audio_path)
+
+    # OPEN VIDEO USING OPENCV
     cap = cv2.VideoCapture(video_path)
 
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -296,6 +304,7 @@ def add_auto_captions(video_path, output):
 
         current_text = ""
 
+        # FIND CURRENT SUBTITLE
         for segment in result["segments"]:
 
             if segment["start"] <= current_time <= segment["end"]:
@@ -354,14 +363,12 @@ def add_auto_captions(video_path, output):
     cap.release()
     out.release()
 
+    # ADD ORIGINAL AUDIO BACK
     final_clip = VideoFileClip(temp_output)
 
-    original_video = VideoFileClip(video_path)
+    final_clip = final_clip.set_audio(video.audio)
 
-    final_clip = final_clip.set_audio(
-        original_video.audio
-    )
-
+    # EXPORT FINAL VIDEO
     final_clip.write_videofile(
         output,
         codec="libx264",
