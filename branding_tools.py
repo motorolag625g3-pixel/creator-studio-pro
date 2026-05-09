@@ -1,7 +1,7 @@
 from moviepy.editor import *
 import cv2
 import numpy as np
-import whisper
+import openai_whisper as whisper
 import textwrap
 
 # =====================================
