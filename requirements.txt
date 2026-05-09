@@ -7,5 +7,5 @@ pillow
 imageio
 imageio-ffmpeg
 decorator==4.4.2
-git+https://github.com/openai/whisper.git
+openai-whisper
 torch
