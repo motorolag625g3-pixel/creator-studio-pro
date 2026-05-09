@@ -24,78 +24,9 @@ menu = st.sidebar.selectbox(
         "Custom Text Branding",
         "Add Intro Video",
         "Replace Video Audio",
-        "Trim Video"
+        "Trim Video",
         "Adjust Video Volume",
-    # =====================================
-# INSERT MID-ROLL ADVERTISEMENTS
-# =====================================
-
-def insert_advertisements(
-    main_video_path,
-    ad_video_path,
-    ad_count,
-    output
-):
-
-    # LOAD MAIN VIDEO
-    main_video = VideoFileClip(main_video_path)
-
-    # LOAD AD VIDEO
-    ad_video = VideoFileClip(ad_video_path)
-
-    # MAIN VIDEO DURATION
-    duration = main_video.duration
-
-    # SPLIT POINTS
-    split_points = []
-
-    for i in range(1, ad_count + 1):
-
-        point = (duration / (ad_count + 1)) * i
-
-        split_points.append(point)
-
-    # CREATE VIDEO PARTS
-    clips = []
-
-    previous = 0
-
-    for point in split_points:
-
-        # MAIN VIDEO PART
-        part = main_video.subclip(previous, point)
-
-        clips.append(part)
-
-        # ADD AD VIDEO
-        ad_resized = ad_video.resize(main_video.size)
-        ad_resized = ad_resized.set_fps(main_video.fps)
-
-        clips.append(ad_resized)
-
-        previous = point
-
-    # LAST PART OF VIDEO
-    last_part = main_video.subclip(previous)
-
-    clips.append(last_part)
-
-    # COMBINE ALL CLIPS
-    final_video = concatenate_videoclips(
-        clips,
-        method="compose"
-    )
-
-    # EXPORT VIDEO
-    final_video.write_videofile(
-        output,
-        codec="libx264",
-        audio_codec="aac",
-        fps=main_video.fps
-    )
-]
-        
-        
+        "Insert Advertisements"
     ]
 )
 
@@ -121,9 +52,11 @@ if menu == "Full Screen Watermark":
 
     if video and logo:
 
+        # SAVE VIDEO
         with open("temp/input.mp4", "wb") as f:
             f.write(video.read())
 
+        # SAVE LOGO
         with open("temp/logo.png", "wb") as f:
             f.write(logo.read())
 
@@ -338,7 +271,57 @@ if menu == "Trim Video":
                     file,
                     file_name="trimmed_video.mp4"
                 )
-                # =========================================
+
+# =========================================
+# ADJUST VIDEO VOLUME
+# =========================================
+
+if menu == "Adjust Video Volume":
+
+    st.header("🎚️ Adjust Video Volume")
+
+    volume_video = st.file_uploader(
+        "Upload Video",
+        type=["mp4"],
+        key="volume_video"
+    )
+
+    if volume_video:
+
+        with open("temp/volume_video.mp4", "wb") as f:
+            f.write(volume_video.read())
+
+        volume_level = st.slider(
+            "Select Volume Level",
+            min_value=0.0,
+            max_value=3.0,
+            value=1.0,
+            step=0.1
+        )
+
+        st.write(f"Current Volume: {volume_level}x")
+
+        if st.button("Apply Volume Change"):
+
+            adjust_video_volume(
+                "temp/volume_video.mp4",
+                volume_level,
+                "outputs/volume_output.mp4"
+            )
+
+            st.success("Volume Updated Successfully!")
+
+            st.video("outputs/volume_output.mp4")
+
+            with open("outputs/volume_output.mp4", "rb") as file:
+
+                st.download_button(
+                    "Download Video",
+                    file,
+                    file_name="volume_adjusted_video.mp4"
+                )
+
+# =========================================
 # INSERT ADVERTISEMENTS
 # =========================================
 
@@ -360,7 +343,7 @@ if menu == "Insert Advertisements":
         key="advertisement_video"
     )
 
-    # AD COUNT
+    # NUMBER OF ADS
     ad_count = st.number_input(
         "Number of Advertisements",
         min_value=1,
@@ -370,15 +353,12 @@ if menu == "Insert Advertisements":
 
     if main_video and ad_video:
 
-        # SAVE MAIN VIDEO
         with open("temp/main_ad_video.mp4", "wb") as f:
             f.write(main_video.read())
 
-        # SAVE AD VIDEO
         with open("temp/ad_video.mp4", "wb") as f:
             f.write(ad_video.read())
 
-        # BUTTON
         if st.button("Insert Advertisements"):
 
             insert_advertisements(
@@ -390,10 +370,8 @@ if menu == "Insert Advertisements":
 
             st.success("Advertisements Added Successfully!")
 
-            # SHOW VIDEO
             st.video("outputs/final_ad_video.mp4")
 
-            # DOWNLOAD BUTTON
             with open("outputs/final_ad_video.mp4", "rb") as file:
 
                 st.download_button(
