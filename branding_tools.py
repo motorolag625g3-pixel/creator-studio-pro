@@ -130,3 +130,26 @@ def add_text_branding(video_path, text, output):
         codec="libx264",
         audio_codec="aac"
     )
+    # =====================================
+# ADD INTRO VIDEO
+# =====================================
+
+def add_intro_video(intro_path, main_video_path, output):
+
+    # LOAD INTRO VIDEO
+    intro = VideoFileClip(intro_path)
+
+    # LOAD MAIN VIDEO
+    main_video = VideoFileClip(main_video_path)
+
+    # COMBINE VIDEOS
+    final_video = concatenate_videoclips(
+        [intro, main_video]
+    )
+
+    # EXPORT FINAL VIDEO
+    final_video.write_videofile(
+        output,
+        codec="libx264",
+        audio_codec="aac"
+    )
