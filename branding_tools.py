@@ -133,23 +133,32 @@ def add_text_branding(video_path, text, output):
     # =====================================
 # ADD INTRO VIDEO
 # =====================================
+# =====================================
+# ADD INTRO VIDEO
+# =====================================
 
 def add_intro_video(intro_path, main_video_path, output):
 
-    # LOAD INTRO VIDEO
+    # LOAD VIDEOS
     intro = VideoFileClip(intro_path)
-
-    # LOAD MAIN VIDEO
     main_video = VideoFileClip(main_video_path)
+
+    # MATCH RESOLUTION
+    intro = intro.resize(main_video.size)
+
+    # MATCH FPS
+    intro = intro.set_fps(main_video.fps)
 
     # COMBINE VIDEOS
     final_video = concatenate_videoclips(
-        [intro, main_video]
+        [intro, main_video],
+        method="compose"
     )
 
     # EXPORT FINAL VIDEO
     final_video.write_videofile(
         output,
         codec="libx264",
-        audio_codec="aac"
+        audio_codec="aac",
+        fps=main_video.fps
     )
