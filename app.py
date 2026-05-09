@@ -83,7 +83,7 @@ if menu == "Full Screen Watermark":
 # CUSTOM TEXT BRANDING
 # =========================================
 
-if menu == "Custom Text Branding":
+if menu == "tharuuu":
 
     st.header("📝 Custom Text Branding")
 
@@ -95,7 +95,7 @@ if menu == "Custom Text Branding":
 
     # USER TEXT INPUT
     branding_text = st.text_input(
-        "Enter Your Branding Text"
+        "tharuuu"
     )
 
     if text_video and branding_text:
