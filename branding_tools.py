@@ -104,7 +104,7 @@ def add_text_branding(video_path, text, output):
         )
 
         # TEXT TRANSPARENCY
-        alpha = 0.2
+        alpha = 0.5
 
         # BLEND TEXT + VIDEO
         frame = cv2.addWeighted(
