@@ -1,5 +1,9 @@
 
 import streamlit as st
+import os
+
+os.makedirs("temp", exist_ok=True)
+os.makedirs("outputs", exist_ok=True)
 
 from branding_tools import *
 
